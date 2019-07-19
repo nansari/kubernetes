@@ -1,9 +1,7 @@
 # kubernetes
 Let's play with kubernetes cluster. k8s is used for kubernetes.
 
-## kubectl
-
-### Configure kubectl to ship command to specofic k8s cluster
+## Configure kubectl to ship command to specific k8s cluster
 
 If you are comming here from [my minikube page](https://github.com/nansari/minikube/blob/master/README.md), you have 2 cluster information in minikube, though ```second-cluster``` has alredy been deleted.
 
@@ -60,7 +58,7 @@ $ kubectl cluster-info dump |less
 
 ```
 
-### kubectl play book
+## kubectl primer
 
 So, now we have one cluster. How many nodes we have?
 
@@ -87,6 +85,44 @@ kube-node-lease   Active   83d
 kube-public       Active   83d
 kube-system       Active   83d
 ```
+Namespaces are a way to divide cluster resources between multiple users.
+Most of k8s resources are in some namespace.
+
+How many resources are there in kubernetes? .
+What are resources are namespace sensitive? Total 35
+Waht are resources are namespace independent?
+
+```
+$ kubectl api-resources
+$ kubectl api-resources --namespaced=true
+$ kubectl api-resources --namespaced=false
+```
+Out of total 58 api-resources in version 1.14, 35 are namespaced and 24 are not.
+Also in above output, pay attention to ```SHORTNAME```. Most of resources have a short name too.
+For example, namespace is ns and pods is po.
+
+What is pod in k8s?
+- a group of one or more containers
+- a basic unit of deployment in k8s
+- can run docker and many other type of container runtime
+- each pod will get a dynamic IP, each container in pod will get a port. So container internally is accessible at <pod_ip>:<container_port>
+- all containers in pod share network, namespace, resources and storage
+
+Let's get some explaination on pod. ```explain``` work on all other k8s resources.
+```
+kubectl explain pods
+kubectl explain svc
+```
+
+## Creating a docker container
+
+## First deployment
+
+
+
+
+
+
 
 
 
