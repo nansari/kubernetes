@@ -114,12 +114,100 @@ kubectl explain pods
 kubectl explain svc
 ```
 
-## Creating a docker container
 
 ## First deployment
 
+Let's deploy a web nginx servers container from focker.io. Our deployment name is ngixweb, generator optiona is optional ( to avoid a warning message about a method being deprecated) and image used is docker.io/nginx:latest
+```
+$ kubectl create deploy nginx-web  --image=nginx:latest
+deployment.apps/nginx-web created
+
+$ kubectl get deploy -o wide
+NAME             READY   UP-TO-DATE   AVAILABLE   AGE   CONTAINERS       IMAGES                       SELECTOR
+hello-minikube   1/1     1            1           83d   hello-minikube   k8s.gcr.io/echoserver:1.10   run=hello-minikube
+nginx-web        1/1     1            1           40s   nginx            nginx:latest                 app=nginx-web
+```
+Our first deployment nginx-web is created. Since we did not mention, how many pods/replica set need to be created in this deployment, only one pod/replica set is created. It is created in default namespace.
+It's time to know more details about pods environment.
+
+```
+$ kubectl get pods
+NAME                              READY   STATUS    RESTARTS   AGE
+hello-minikube-56cdb79778-sdbqg   1/1     Running   3          83d
+nginx-web-66964bcbcd-vrvnx        1/1     Running   0          5m3s
+
+$ kubectl get rs
+NAME                        DESIRED   CURRENT   READY   AGE
+hello-minikube-56cdb79778   1         1         1       83d
+nginx-web-66964bcbcd        1         1         1       7m25s 
+
+# Notice: ^  An string appended to deployment name to make replica set name
+#         ^^ One more string appended to rs name to make pod
+
+$ kubectl get pods -o wide
+NAME                              READY   STATUS    RESTARTS   AGE     IP           NODE       NOMINATED NODE   READINESS GATES
+hello-minikube-56cdb79778-sdbqg   1/1     Running   3          83d     172.17.0.4   minikube   <none>           <none>
+nginx-web-66964bcbcd-vrvnx        1/1     Running   0          5m13s   172.17.0.5   minikube   <none>           <none>
+$ 
+$ kubectl get pods -n default
+NAME                              READY   STATUS    RESTARTS   AGE
+hello-minikube-56cdb79778-sdbqg   1/1     Running   3          83d
+nginx-web-66964bcbcd-vrvnx        1/1     Running   0          5m28s
+$ 
+$ kubectl get pods --all-namespaces
+NAMESPACE     NAME                                    READY   STATUS    RESTARTS   AGE
+default       hello-minikube-56cdb79778-sdbqg         1/1     Running   3          83d
+default       nginx-web-66964bcbcd-vrvnx              1/1     Running   0          6m3s
+kube-system   coredns-fb8b8dccf-68z2d                 1/1     Running   5          83d
+kube-system   coredns-fb8b8dccf-pddhp                 1/1     Running   5          83d
+kube-system   etcd-minikube                           1/1     Running   3          83d
+kube-system   kube-addon-manager-minikube             1/1     Running   3          83d
+kube-system   kube-apiserver-minikube                 1/1     Running   3          83d
+kube-system   kube-controller-manager-minikube        1/1     Running   3          83d
+kube-system   kube-proxy-wsls5                        1/1     Running   2          39h
+kube-system   kube-scheduler-minikube                 1/1     Running   3          83d
+kube-system   kubernetes-dashboard-79dd6bfc48-6nqxm   1/1     Running   4          83d
+kube-system   storage-provisioner                     1/1     Running   5          83d
+$ 
+```
+A lot of information above, what if need more details!
+```
+$ kubectl get pods -o json
+$ kubectl get pods -o yaml
+```
+
+There is still more to come. For now, we have created nginx-web deployment to start a single container inside a sinle pod.
+Can we test it now as we see above ```kubectl get pods -o wide``` shows pod IP 172.17.0.5?
+No, this is internal pods IP not accessible by outside world.
+We need to expose or deployment as a k8s service. Let's do it.
+Beloiw command created service with an IP (each service will have it's own IP) and port 80 that will be accessible via node port IP ( Minikube Linux VM IP, not your PC IP)
+
+```
+$ kubectl expose deployment nginx-web --port 80 --type=NodePort
+service/nginx-web exposed
+
+$ kubectl get service  nginx-web
+NAME        TYPE       CLUSTER-IP      EXTERNAL-IP   PORT(S)        AGE
+nginx-web   NodePort   10.110.25.135   <none>        80:30723/TCP   26m
+$ 
+
+$ minikube ip
+192.168.99.100
+```
+Nginx web server of our nginx deployment should be accessible on http://192.168.99.100:30723 !
 
 
+
+
+
+$ kubectl describe deployment nginx-web
+$ kubectl describe pod nginx-web-66964bcbcd-vrvnx
+
+
+
+
+
+## Creating a docker container
 
 
 
